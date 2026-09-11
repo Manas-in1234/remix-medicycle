@@ -1,17 +1,45 @@
-import { initializeApp } from 'firebase/app';
+import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth';
 import { getFirestore, doc, getDocFromServer } from 'firebase/firestore';
-import firebaseConfig from '../../firebase-applet-config.json';
+import rawConfig from '../../firebase-applet-config.json';
 
-// Initialize Firebase App
-export const app = initializeApp(firebaseConfig);
+// Build Firebase configuration supporting VITE_ environment variables with fallback
+const metaEnv = (import.meta as any).env || {};
+export const firebaseConfig = {
+  apiKey: metaEnv.VITE_FIREBASE_API_KEY || rawConfig.apiKey || '',
+  authDomain: metaEnv.VITE_FIREBASE_AUTH_DOMAIN || rawConfig.authDomain || '',
+  projectId: metaEnv.VITE_FIREBASE_PROJECT_ID || rawConfig.projectId || '',
+  storageBucket: metaEnv.VITE_FIREBASE_STORAGE_BUCKET || rawConfig.storageBucket || '',
+  messagingSenderId: metaEnv.VITE_FIREBASE_MESSAGING_SENDER_ID || rawConfig.messagingSenderId || '',
+  appId: metaEnv.VITE_FIREBASE_APP_ID || rawConfig.appId || '',
+  firestoreDatabaseId: metaEnv.VITE_FIRESTORE_DATABASE_ID || rawConfig.firestoreDatabaseId || '',
+};
 
-// Initialize Cloud Firestore using the configured database ID
-export const db = getFirestore(app, firebaseConfig.firestoreDatabaseId);
+// Ensure Firebase is initialized only once
+export const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Firebase Authentication
+// Initialize Cloud Firestore using the configured database ID (or default)
+export const db =
+  firebaseConfig.firestoreDatabaseId && firebaseConfig.firestoreDatabaseId !== '(default)'
+    ? getFirestore(app, firebaseConfig.firestoreDatabaseId)
+    : getFirestore(app);
+
+// Initialize Firebase Authentication with Google Auth Provider
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+/**
+ * Diagnostic helper to verify whether Firebase config is complete
+ */
+export function checkFirebaseConfig(): { isConfigured: boolean; missingFields: string[] } {
+  const required: (keyof typeof firebaseConfig)[] = ['apiKey', 'authDomain', 'projectId', 'appId'];
+  const missingFields = required.filter((key) => !firebaseConfig[key] || firebaseConfig[key].includes('YOUR_'));
+  return {
+    isConfigured: missingFields.length === 0,
+    missingFields,
+  };
+}
 
 export enum OperationType {
   CREATE = 'create',

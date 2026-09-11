@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { store } from '../../services/store';
 import { PickupRequest, WasteCategoryCode } from '../../types';
 import {
@@ -32,6 +33,7 @@ export const PlantDashboard: React.FC<PlantDashboardProps> = ({
   onNavChange,
 }) => {
   const { currentUser } = useAuth();
+  const { t } = useLanguage();
   const plant = store.treatmentPlants[0] || {
     plantId: 'tp-01',
     name: 'AP Medical Waste Treatment Facility',
@@ -346,11 +348,11 @@ export const PlantDashboard: React.FC<PlantDashboardProps> = ({
           onClick={() => setActiveTab('COMPLETED')}
           className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs text-center cursor-pointer hover:border-emerald-400 transition-colors"
         >
-          <p className="text-xs font-bold text-slate-500">Completed</p>
+          <p className="text-xs font-bold text-slate-500">{t('completed', 'Completed')}</p>
           <p className="text-2xl font-black text-emerald-600 mt-1">
             {completedList.length}
           </p>
-          <p className="text-[11px] text-slate-400 mt-0.5">Treated</p>
+          <p className="text-[11px] text-slate-400 mt-0.5">{t('treatment', 'Treated')}</p>
         </div>
       </div>
 
@@ -359,35 +361,35 @@ export const PlantDashboard: React.FC<PlantDashboardProps> = ({
         {/* SCAN WASTE */}
         <button
           onClick={() => onOpenScanner(incomingList[0] || store.pickupRequests[0])}
-          className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-base rounded-2xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2"
+          className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-base rounded-2xl shadow-md shadow-emerald-600/20 transition-all flex items-center justify-center gap-2 cursor-pointer"
         >
           <QrCode className="w-5 h-5" />
-          <span>📷 SCAN WASTE</span>
+          <span>📷 {t('scanWasteBag', 'SCAN WASTE')}</span>
         </button>
 
         <div className="grid grid-cols-2 gap-3">
           {/* INCOMING */}
           <button
             onClick={() => setActiveTab(activeTab === 'INCOMING' ? 'HOME' : 'INCOMING')}
-            className={`py-3.5 px-4 font-bold text-sm rounded-2xl border transition-all flex items-center justify-center gap-2 ${
+            className={`py-3.5 px-4 font-bold text-sm rounded-2xl border transition-all flex items-center justify-center gap-2 cursor-pointer ${
               activeTab === 'INCOMING'
                 ? 'bg-slate-900 text-white border-slate-900'
                 : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200 shadow-xs'
             }`}
           >
-            <span>📋 INCOMING</span>
+            <span>📋 {t('pending', 'INCOMING')}</span>
           </button>
 
           {/* COMPLETED */}
           <button
             onClick={() => setActiveTab(activeTab === 'COMPLETED' ? 'HOME' : 'COMPLETED')}
-            className={`py-3.5 px-4 font-bold text-sm rounded-2xl border transition-all flex items-center justify-center gap-2 ${
+            className={`py-3.5 px-4 font-bold text-sm rounded-2xl border transition-all flex items-center justify-center gap-2 cursor-pointer ${
               activeTab === 'COMPLETED'
                 ? 'bg-slate-900 text-white border-slate-900'
                 : 'bg-white hover:bg-slate-50 text-slate-800 border-slate-200 shadow-xs'
             }`}
           >
-            <span>✅ COMPLETED</span>
+            <span>✅ {t('completed', 'COMPLETED')}</span>
           </button>
         </div>
       </div>

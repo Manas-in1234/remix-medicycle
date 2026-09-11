@@ -189,7 +189,7 @@ export function optimizeHospitalPickupRoute(
       // Urgency priority modifier:
       // EMERGENCY / CRITICAL cuts effective cost so they are visited sooner
       let urgencyModifier = 1.0;
-      if (candidate.priority === 'CRITICAL') urgencyModifier = 0.55;
+      if (candidate.priority === 'CRITICAL' || candidate.priority === 'EMERGENCY') urgencyModifier = 0.55;
       else if (candidate.priority === 'HIGH') urgencyModifier = 0.78;
 
       // When fewer stops remain, proximity to treatment plant has increased weight
@@ -245,7 +245,7 @@ export function optimizeHospitalPickupRoute(
 
     // Formulate Priority Reason
     let reason = '';
-    const isCritical = req.priority === 'CRITICAL';
+    const isCritical = req.priority === 'CRITICAL' || req.priority === 'EMERGENCY';
     const isHigh = req.priority === 'HIGH';
 
     if (sequenceNum === 1) {
@@ -265,7 +265,7 @@ export function optimizeHospitalPickupRoute(
     runningLng = req.hospitalLng;
 
     const urgencyLevel: 'CRITICAL' | 'HIGH' | 'NORMAL' =
-      req.priority === 'CRITICAL'
+      req.priority === 'CRITICAL' || req.priority === 'EMERGENCY'
         ? 'CRITICAL'
         : req.priority === 'HIGH'
         ? 'HIGH'

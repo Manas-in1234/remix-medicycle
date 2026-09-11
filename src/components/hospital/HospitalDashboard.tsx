@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import {
   PickupRequest,
   WasteBag,
@@ -52,6 +53,7 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({
   onNavChange,
 }) => {
   const { currentUser } = useAuth();
+  const { t } = useLanguage();
 
   // Active hospital
   const hospital =
@@ -330,10 +332,10 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({
                 <Package className="w-8 h-8 text-white" />
               </div>
               <span className="text-lg font-extrabold tracking-wide">
-                📦 BOOK WASTE
+                📦 {t('bookWaste')}
               </span>
               <span className="text-xs text-emerald-100 mt-0.5">
-                Choose waste &amp; bag count
+                {t('wasteCategory')}: Yellow, Red, Blue, White
               </span>
             </button>
 
@@ -346,10 +348,10 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({
                 <Truck className="w-8 h-8 text-white" />
               </div>
               <span className="text-lg font-extrabold tracking-wide">
-                🚚 TRACK PICKUP
+                🚚 {t('trackPickup')}
               </span>
               <span className="text-xs text-cyan-100 mt-0.5">
-                Live driver status &amp; ETA
+                {t('pickupStatus')} &amp; GPS
               </span>
             </button>
 
@@ -362,10 +364,10 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({
                 <ClipboardList className="w-8 h-8 text-slate-700" />
               </div>
               <span className="text-lg font-extrabold text-slate-900 tracking-wide">
-                📋 MY WASTE
+                📋 {t('myWaste')}
               </span>
               <span className="text-xs text-slate-500 mt-0.5">
-                Category weights &amp; history
+                {t('wasteHistory')} &amp; {t('totalWeight')}
               </span>
             </button>
 
@@ -380,10 +382,10 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({
                 <QrCode className="w-8 h-8 text-slate-700" />
               </div>
               <span className="text-lg font-extrabold text-slate-900 tracking-wide">
-                📷 SCAN QR
+                📷 {t('scanQr')}
               </span>
               <span className="text-xs text-slate-500 mt-0.5">
-                Verify manifest QR code
+                {t('scanWasteBag')}
               </span>
             </button>
           </div>
@@ -424,29 +426,29 @@ export const HospitalDashboard: React.FC<HospitalDashboardProps> = ({
           <div className="grid grid-cols-3 gap-3">
             {/* Today's Waste */}
             <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs text-center">
-              <p className="text-xs font-bold text-slate-500">Today</p>
+              <p className="text-xs font-bold text-slate-500">{t('collectionDate', 'Today')}</p>
               <p className="text-2xl font-black text-slate-900 mt-1">
                 {totalWasteToday} <span className="text-xs font-bold text-slate-400">kg</span>
               </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">Waste</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">{t('waste', 'Waste')}</p>
             </div>
 
             {/* Pending */}
             <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs text-center">
-              <p className="text-xs font-bold text-slate-500">Pending</p>
+              <p className="text-xs font-bold text-slate-500">{t('pending', 'Pending')}</p>
               <p className="text-2xl font-black text-amber-600 mt-1">
                 {pendingRequests.length}
               </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">Pickups</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">{t('pickup', 'Pickups')}</p>
             </div>
 
             {/* Completed */}
             <div className="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-xs text-center">
-              <p className="text-xs font-bold text-slate-500">Completed</p>
+              <p className="text-xs font-bold text-slate-500">{t('completed', 'Completed')}</p>
               <p className="text-2xl font-black text-emerald-600 mt-1">
                 {completedRequests.length}
               </p>
-              <p className="text-[11px] text-slate-400 mt-0.5">Total</p>
+              <p className="text-[11px] text-slate-400 mt-0.5">{t('totalBags', 'Total')}</p>
             </div>
           </div>
         </div>

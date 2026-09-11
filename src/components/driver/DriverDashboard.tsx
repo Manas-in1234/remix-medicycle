@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { store } from '../../services/store';
 import { PickupRequest } from '../../types';
 import { formatISTDateTime } from '../../lib/dateUtils';
@@ -36,6 +37,7 @@ export const DriverDashboard: React.FC<DriverDashboardProps> = ({
   onNavChange,
 }) => {
   const { currentUser } = useAuth();
+  const { t } = useLanguage();
 
   // Find driver & vehicle
   const driver =
@@ -475,7 +477,7 @@ export const DriverDashboard: React.FC<DriverDashboardProps> = ({
 
         <div>
           <h2 className="text-2xl font-black text-slate-900">
-            🚚 {activePickupsCount} pickups today
+            🚚 {activePickupsCount} {t('pickup', 'Pickups')}
           </h2>
           <p className="text-xs text-slate-500 mt-1">
             Current payload: {vehicle.currentLoadKg} / {vehicle.capacityKg} kg
@@ -489,9 +491,9 @@ export const DriverDashboard: React.FC<DriverDashboardProps> = ({
               const next = assignedRequests.find((r) => r.status !== 'CLOSED');
               if (next) setSelectedReq(next);
             }}
-            className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-base rounded-2xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2"
+            className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-base rounded-2xl shadow-lg shadow-emerald-600/25 transition-all flex items-center justify-center gap-2 cursor-pointer"
           >
-            <span>START NEXT PICKUP</span>
+            <span>{t('trackPickup', 'Start Next Pickup')}</span>
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>
@@ -500,13 +502,13 @@ export const DriverDashboard: React.FC<DriverDashboardProps> = ({
       {/* Today's Pickups List (Section 14) */}
       <div className="space-y-3">
         <h3 className="text-sm font-bold text-slate-700 px-1">
-          Today's Pickups
+          {t('pickupStatus', "Today's Pickups")}
         </h3>
 
         {assignedRequests.length === 0 ? (
           <div className="bg-white rounded-3xl p-8 border border-slate-200/80 shadow-xs text-center space-y-2">
             <span className="text-3xl">🚚</span>
-            <p className="text-sm font-bold text-slate-700">No pickup yet</p>
+            <p className="text-sm font-bold text-slate-700">{t('pending', 'No pickup yet')}</p>
             <p className="text-xs text-slate-400">All assigned jobs completed.</p>
           </div>
         ) : (
@@ -528,7 +530,7 @@ export const DriverDashboard: React.FC<DriverDashboardProps> = ({
                   <span>&bull;</span>
                   <span>{req.totalWeightKg} kg</span>
                   <span>&bull;</span>
-                  <span>{req.totalBagsCount} bags</span>
+                  <span>{req.totalBagsCount} {t('totalBags', 'bags')}</span>
                 </div>
               </div>
 
@@ -536,16 +538,16 @@ export const DriverDashboard: React.FC<DriverDashboardProps> = ({
               {req.status === 'READY_FOR_ASSIGNMENT' || req.status === 'DRIVER_ASSIGNED' ? (
                 <button
                   onClick={() => handleAccept(req)}
-                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all"
+                  className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-xs rounded-xl shadow-xs transition-all cursor-pointer"
                 >
                   ACCEPT
                 </button>
               ) : (
                 <button
                   onClick={() => setSelectedReq(req)}
-                  className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-bold text-xs rounded-xl transition-all"
+                  className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 active:scale-95 text-white font-bold text-xs rounded-xl transition-all cursor-pointer"
                 >
-                  OPEN
+                  {t('viewDetails', 'OPEN')}
                 </button>
               )}
             </div>

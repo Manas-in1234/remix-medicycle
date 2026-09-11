@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { UserRole } from '../../types';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
+import { AuthModal } from '../auth/AuthModal';
 import {
   ShieldCheck,
   Building2,
@@ -12,42 +13,32 @@ import {
   Flame,
   CheckCircle2,
   LogIn,
-  X,
-  Lock,
-  Mail,
-  Sparkles,
+  UserPlus,
 } from 'lucide-react';
 
 interface LandingPageProps {
-  onEnterWorkspace: (role: UserRole) => void;
+  onLoginSuccess?: () => void;
 }
 
-export const LandingPage: React.FC<LandingPageProps> = ({ onEnterWorkspace }) => {
-  const { loginWithGoogle, switchDemoRole } = useAuth();
+export const LandingPage: React.FC<LandingPageProps> = ({ onLoginSuccess }) => {
+  const { t } = useLanguage();
   const [showLoginModal, setShowLoginModal] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [forgotSent, setForgotSent] = useState(false);
+  const [modalInitialTab, setModalInitialTab] = useState<'signin' | 'signup'>('signin');
+  const [modalInitialUsername, setModalInitialUsername] = useState('');
 
-  const handleLoginSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Default or detected role redirect
-    const lower = email.toLowerCase();
-    if (lower.includes('driver')) {
-      onEnterWorkspace('DRIVER');
-    } else if (lower.includes('plant')) {
-      onEnterWorkspace('PLANT');
-    } else if (lower.includes('admin')) {
-      onEnterWorkspace('ADMIN');
-    } else {
-      onEnterWorkspace('HOSPITAL');
-    }
-    setShowLoginModal(false);
+  const openAuthModal = (tab: 'signin' | 'signup' = 'signin', hintUsername: string = '') => {
+    setModalInitialTab(tab);
+    setModalInitialUsername(hintUsername);
+    setShowLoginModal(true);
+  };
+
+  const openLoginWithHint = (hintUsername?: string) => {
+    openAuthModal('signin', hintUsername || '');
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
-      {/* Top Simple Bar */}
+    <div id="landing-page-root" className="min-h-screen bg-slate-50 text-slate-800 flex flex-col font-sans">
+      {/* Top Header Bar */}
       <header className="bg-white border-b border-slate-200/80 px-4 sm:px-8 py-3.5 flex items-center justify-between sticky top-0 z-30">
         <div className="flex items-center gap-2.5">
           <div className="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-md shadow-emerald-500/20">
@@ -60,13 +51,24 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterWorkspace }) =>
           </div>
         </div>
 
-        <button
-          onClick={() => setShowLoginModal(true)}
-          className="flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-sm rounded-xl shadow-sm transition-all"
-        >
-          <LogIn className="w-4 h-4" />
-          <span>LOGIN</span>
-        </button>
+        <div className="flex items-center gap-2.5">
+          <button
+            id="header-signin-btn"
+            onClick={() => openAuthModal('signin')}
+            className="flex items-center gap-1.5 px-4 py-2 text-slate-700 hover:text-slate-900 hover:bg-slate-100 font-bold text-xs sm:text-sm rounded-xl transition cursor-pointer"
+          >
+            <LogIn className="w-4 h-4" />
+            <span>Sign In</span>
+          </button>
+          <button
+            id="header-signup-btn"
+            onClick={() => openAuthModal('signup')}
+            className="flex items-center gap-1.5 px-4 py-2 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-bold text-xs sm:text-sm rounded-xl shadow-xs shadow-emerald-600/20 transition cursor-pointer"
+          >
+            <UserPlus className="w-4 h-4" />
+            <span>Sign Up</span>
+          </button>
+        </div>
       </header>
 
       {/* Hero Section */}
@@ -79,30 +81,40 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterWorkspace }) =>
           </h1>
 
           <p className="text-lg sm:text-xl text-slate-600 font-medium">
-            Track biomedical waste from hospital to treatment plant.
+            Track biomedical waste from hospital to treatment plant with digital custody and real-time compliance.
           </p>
 
-          <div className="pt-3">
+          <div className="pt-3 flex flex-col sm:flex-row items-center justify-center gap-3">
             <button
-              onClick={() => setShowLoginModal(true)}
-              className="w-full sm:w-auto px-8 py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-base rounded-2xl shadow-lg shadow-emerald-600/25 transition-all inline-flex items-center justify-center gap-2"
+              id="hero-signin-btn"
+              onClick={() => openAuthModal('signin')}
+              className="w-full sm:w-auto px-7 py-3.5 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-sm sm:text-base rounded-2xl shadow-lg shadow-emerald-600/25 transition inline-flex items-center justify-center gap-2 cursor-pointer"
             >
-              <span>LOGIN</span>
+              <span>SIGN IN TO MEDICYCLE</span>
               <ArrowRight className="w-5 h-5" />
+            </button>
+            <button
+              id="hero-signup-btn"
+              onClick={() => openAuthModal('signup')}
+              className="w-full sm:w-auto px-7 py-3.5 bg-white hover:bg-slate-50 active:scale-95 text-slate-800 border-2 border-slate-200 hover:border-emerald-500 font-bold text-sm sm:text-base rounded-2xl transition inline-flex items-center justify-center gap-2 cursor-pointer shadow-xs"
+            >
+              <UserPlus className="w-4 h-4 text-emerald-600" />
+              <span>CREATE ACCOUNT</span>
             </button>
           </div>
         </div>
 
-        {/* 4 Visual Cards */}
+        {/* 4 Ecosystem Cards */}
         <div className="w-full space-y-3">
           <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Choose Your Workspace
+            Biomedical Waste Lifecycle Stakeholders
           </p>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             {/* Hospital */}
             <button
-              onClick={() => onEnterWorkspace('HOSPITAL')}
-              className="bg-white hover:bg-emerald-50/70 border-2 border-slate-200/80 hover:border-emerald-500 p-5 rounded-2xl transition-all shadow-xs hover:shadow-md flex flex-col items-center text-center group"
+              id="role-preview-hospital"
+              onClick={() => openLoginWithHint('hospital01')}
+              className="bg-white hover:bg-emerald-50/70 border-2 border-slate-200/80 hover:border-emerald-500 p-5 rounded-2xl transition-all shadow-xs hover:shadow-md flex flex-col items-center text-center group cursor-pointer"
             >
               <div className="w-14 h-14 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Building2 className="w-7 h-7" />
@@ -113,8 +125,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterWorkspace }) =>
 
             {/* Driver */}
             <button
-              onClick={() => onEnterWorkspace('DRIVER')}
-              className="bg-white hover:bg-cyan-50/70 border-2 border-slate-200/80 hover:border-cyan-500 p-5 rounded-2xl transition-all shadow-xs hover:shadow-md flex flex-col items-center text-center group"
+              id="role-preview-driver"
+              onClick={() => openLoginWithHint('driver01')}
+              className="bg-white hover:bg-cyan-50/70 border-2 border-slate-200/80 hover:border-cyan-500 p-5 rounded-2xl transition-all shadow-xs hover:shadow-md flex flex-col items-center text-center group cursor-pointer"
             >
               <div className="w-14 h-14 rounded-2xl bg-cyan-100 text-cyan-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Truck className="w-7 h-7" />
@@ -125,8 +138,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterWorkspace }) =>
 
             {/* Treatment Plant */}
             <button
-              onClick={() => onEnterWorkspace('PLANT')}
-              className="bg-white hover:bg-amber-50/70 border-2 border-slate-200/80 hover:border-amber-500 p-5 rounded-2xl transition-all shadow-xs hover:shadow-md flex flex-col items-center text-center group"
+              id="role-preview-plant"
+              onClick={() => openLoginWithHint('plant01')}
+              className="bg-white hover:bg-amber-50/70 border-2 border-slate-200/80 hover:border-amber-500 p-5 rounded-2xl transition-all shadow-xs hover:shadow-md flex flex-col items-center text-center group cursor-pointer"
             >
               <div className="w-14 h-14 rounded-2xl bg-amber-100 text-amber-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <Factory className="w-7 h-7" />
@@ -137,8 +151,9 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterWorkspace }) =>
 
             {/* Admin */}
             <button
-              onClick={() => onEnterWorkspace('ADMIN')}
-              className="bg-white hover:bg-purple-50/70 border-2 border-slate-200/80 hover:border-purple-500 p-5 rounded-2xl transition-all shadow-xs hover:shadow-md flex flex-col items-center text-center group"
+              id="role-preview-admin"
+              onClick={() => openLoginWithHint('admin01')}
+              className="bg-white hover:bg-purple-50/70 border-2 border-slate-200/80 hover:border-purple-500 p-5 rounded-2xl transition-all shadow-xs hover:shadow-md flex flex-col items-center text-center group cursor-pointer"
             >
               <div className="w-14 h-14 rounded-2xl bg-purple-100 text-purple-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                 <ShieldCheck className="w-7 h-7" />
@@ -149,13 +164,12 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterWorkspace }) =>
           </div>
         </div>
 
-        {/* Simple 5-Step Process Illustration */}
+        {/* 5-Step Process Illustration */}
         <div className="w-full bg-white rounded-3xl p-6 sm:p-8 border border-slate-200/80 shadow-xs space-y-6">
           <h2 className="text-sm font-bold text-slate-500 uppercase tracking-wider">
-            How It Works
+            How MedTrack Works
           </h2>
 
-          {/* 5-step flow */}
           <div className="grid grid-cols-1 sm:grid-cols-5 gap-3 sm:gap-2 items-center">
             {/* Step 1 */}
             <div className="flex flex-col items-center p-3 rounded-2xl bg-slate-50 border border-slate-100">
@@ -163,7 +177,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterWorkspace }) =>
                 <Package className="w-6 h-6" />
               </div>
               <span className="text-xs font-bold text-slate-500">1</span>
-              <span className="text-sm font-bold text-slate-900">Waste</span>
+              <span className="text-sm font-bold text-slate-900">Segregate</span>
             </div>
 
             <div className="text-slate-300 hidden sm:block">
@@ -176,7 +190,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterWorkspace }) =>
                 <QrCode className="w-6 h-6" />
               </div>
               <span className="text-xs font-bold text-slate-500">2</span>
-              <span className="text-sm font-bold text-slate-900">Scan</span>
+              <span className="text-sm font-bold text-slate-900">QR Tag</span>
             </div>
 
             <div className="text-slate-300 hidden sm:block">
@@ -189,7 +203,7 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterWorkspace }) =>
                 <Truck className="w-6 h-6" />
               </div>
               <span className="text-xs font-bold text-slate-500">3</span>
-              <span className="text-sm font-bold text-slate-900">Pickup</span>
+              <span className="text-sm font-bold text-slate-900">Transit</span>
             </div>
 
             <div className="text-slate-300 hidden sm:block">
@@ -215,143 +229,23 @@ export const LandingPage: React.FC<LandingPageProps> = ({ onEnterWorkspace }) =>
                 <CheckCircle2 className="w-6 h-6" />
               </div>
               <span className="text-xs font-bold text-emerald-600">5</span>
-              <span className="text-sm font-bold text-emerald-900">Done</span>
+              <span className="text-sm font-bold text-emerald-900">Manifest</span>
             </div>
           </div>
         </div>
       </main>
 
-      {/* Simple Login Modal (Section 6) */}
-      {showLoginModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in">
-          <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-6 sm:p-8 relative border border-slate-200">
-            <button
-              onClick={() => setShowLoginModal(false)}
-              className="absolute top-4 right-4 p-2 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            {/* Centered Logo */}
-            <div className="flex flex-col items-center text-center mb-6">
-              <div className="w-14 h-14 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/25 mb-3">
-                <ShieldCheck className="w-8 h-8" />
-              </div>
-              <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">
-                MEDI<span className="text-emerald-600">CYCLE</span>
-              </h2>
-              <p className="text-xs text-slate-500 mt-1">
-                Enter your credentials to access your terminal
-              </p>
-            </div>
-
-            {/* Simple Form */}
-            <form onSubmit={handleLoginSubmit} className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Email
-                </label>
-                <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="name@hospital.org"
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-slate-700 mb-1">
-                  Password
-                </label>
-                <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
-                  <input
-                    type="password"
-                    required
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500"
-                  />
-                </div>
-              </div>
-
-              <div className="text-right">
-                <button
-                  type="button"
-                  onClick={() => setForgotSent(true)}
-                  className="text-xs text-slate-500 hover:text-emerald-600 underline font-medium"
-                >
-                  Forgot password?
-                </button>
-              </div>
-
-              {forgotSent && (
-                <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 text-center font-medium">
-                  Password reset link sent to your registered email.
-                </div>
-              )}
-
-              <button
-                type="submit"
-                className="w-full py-3 bg-emerald-600 hover:bg-emerald-700 active:scale-95 text-white font-extrabold text-sm rounded-xl shadow-md shadow-emerald-600/20 transition-all"
-              >
-                LOGIN
-              </button>
-            </form>
-
-            {/* Quick Demo Role Jump */}
-            <div className="mt-6 pt-4 border-t border-slate-100 text-center">
-              <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2.5">
-                Or Quick Access As
-              </p>
-              <div className="grid grid-cols-4 gap-1.5 text-xs font-bold">
-                <button
-                  onClick={() => {
-                    onEnterWorkspace('HOSPITAL');
-                    setShowLoginModal(false);
-                  }}
-                  className="p-2 rounded-lg bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 transition-colors"
-                >
-                  🏥 Hospital
-                </button>
-                <button
-                  onClick={() => {
-                    onEnterWorkspace('DRIVER');
-                    setShowLoginModal(false);
-                  }}
-                  className="p-2 rounded-lg bg-slate-100 hover:bg-cyan-100 text-slate-700 hover:text-cyan-800 transition-colors"
-                >
-                  🚚 Driver
-                </button>
-                <button
-                  onClick={() => {
-                    onEnterWorkspace('PLANT');
-                    setShowLoginModal(false);
-                  }}
-                  className="p-2 rounded-lg bg-slate-100 hover:bg-amber-100 text-slate-700 hover:text-amber-800 transition-colors"
-                >
-                  ♻️ Plant
-                </button>
-                <button
-                  onClick={() => {
-                    onEnterWorkspace('ADMIN');
-                    setShowLoginModal(false);
-                  }}
-                  className="p-2 rounded-lg bg-slate-100 hover:bg-purple-100 text-slate-700 hover:text-purple-800 transition-colors"
-                >
-                  👑 Admin
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Production Authentication & Registration Modal */}
+      <AuthModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        initialTab={modalInitialTab}
+        initialUsername={modalInitialUsername}
+        onSuccess={() => {
+          setShowLoginModal(false);
+          onLoginSuccess?.();
+        }}
+      />
     </div>
   );
 };

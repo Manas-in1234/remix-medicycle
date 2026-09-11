@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { useLanguage } from '../../context/LanguageContext';
 import { store } from '../../services/store';
 import { fetchAiWasteForecast } from '../../services/api';
 import {
@@ -41,6 +42,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onNavChange,
 }) => {
   const { currentUser } = useAuth();
+  const { t } = useLanguage();
 
   // Modal / sub-views
   const [showReports, setShowReports] = useState(currentNav === 'REPORTS');
@@ -210,23 +212,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
         {/* Pickups */}
         <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs text-center">
           <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            Pickups
+            {t('pickup', 'Pickups')}
           </p>
           <p className="text-3xl font-black text-amber-600 mt-1">
             {totalPickups}
           </p>
-          <p className="text-[11px] text-slate-500 mt-0.5">Logged today</p>
+          <p className="text-[11px] text-slate-500 mt-0.5">{t('collectionDate', 'Logged today')}</p>
         </div>
 
         {/* Waste */}
         <div className="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-xs text-center">
           <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-            Waste
+            {t('waste', 'Waste')}
           </p>
           <p className="text-3xl font-black text-slate-900 mt-1">
             {totalWaste} <span className="text-xs font-bold text-slate-400">kg</span>
           </p>
-          <p className="text-[11px] text-slate-500 mt-0.5">Total weight</p>
+          <p className="text-[11px] text-slate-500 mt-0.5">{t('totalWeight', 'Total weight')}</p>
         </div>
 
         {/* Alerts */}

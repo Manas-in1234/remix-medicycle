@@ -1,12 +1,12 @@
 {
-  "projectId": "gen-lang-client-0840426676",
-  "appId": "1:305308469400:web:2952987064e7c5ff8be8ed",
-  "apiKey": "AIzaSyCd9mwtGEcD1VzGbWWsERCEPxXiBLbgpvE",
-  "authDomain": "gen-lang-client-0840426676.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-remixmedicycle-e720203f-1286-41bc-a369-88464d12b2f5",
-  "storageBucket": "gen-lang-client-0840426676.firebasestorage.app",
-  "messagingSenderId": "305308469400",
+  "projectId": "medicycle-1a3cf",
+  "appId": "1:573613506807:web:3872ccf8e0857a315313f2",
+  "apiKey": "AIzaSyAbE0Gj7Vsgkjth3-XtrjafREJYpMhMGEk",
+  "authDomain": "medicycle-1a3cf.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-remixmedicycle-e9a1b43f-a06f-41cb-8e0c-15030f10c5f1",
+  "storageBucket": "medicycle-1a3cf.firebasestorage.app",
+  "messagingSenderId": "573613506807",
   "measurementId": "",
-  "oAuthClientId": "305308469400-8k6pg9h1o7upt21adg3gp7rpjeqgiuvb.apps.googleusercontent.com",
+  "oAuthClientId": "573613506807-sc32kajf9qikci4h49pqmf81i9lupcp0.apps.googleusercontent.com",
   "recaptchaSiteKey": ""
 }

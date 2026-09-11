@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { UserRole } from '../../types';
+import { useLanguage } from '../../context/LanguageContext';
+import { SUPPORTED_LANGUAGES, UserRole, LanguageCode } from '../../types';
 import {
   ShieldCheck,
   Bell,
   QrCode,
   RotateCcw,
   User,
-  LogIn,
-  ExternalLink,
   ChevronDown,
+  Globe2,
+  LogOut,
+  Check,
 } from 'lucide-react';
 import { store } from '../../services/store';
 
@@ -26,8 +28,10 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenScanner,
   onOpenProfile,
 }) => {
-  const { currentUser, switchDemoRole, logout } = useAuth();
+  const { currentUser, switchDemoRole, logout, saveUserLanguage } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const [showLangDropdown, setShowLangDropdown] = useState(false);
   const [resetConfirm, setResetConfirm] = useState(false);
 
   const handleResetData = () => {
@@ -35,6 +39,13 @@ export const Header: React.FC<HeaderProps> = ({
     setResetConfirm(true);
     setTimeout(() => setResetConfirm(false), 2000);
   };
+
+  const handleSelectLanguage = async (code: LanguageCode) => {
+    setShowLangDropdown(false);
+    await saveUserLanguage(code);
+  };
+
+  const currentLangObj = SUPPORTED_LANGUAGES.find((l) => l.code === language) || SUPPORTED_LANGUAGES[0];
 
   const getRoleBadge = (role?: UserRole) => {
     switch (role) {
@@ -54,7 +65,7 @@ export const Header: React.FC<HeaderProps> = ({
   const roleInfo = getRoleBadge(currentUser?.role);
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
+    <header id="main-header" className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
         {/* Brand Logo */}
         <div className="flex items-center gap-2.5">
@@ -73,20 +84,71 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Quick Scanner */}
           {onOpenScanner && (
             <button
+              id="header-scan-qr-btn"
               onClick={onOpenScanner}
-              className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors flex items-center gap-1.5 text-xs font-bold"
-              title="Scan QR Code"
+              className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors flex items-center gap-1.5 text-xs font-bold cursor-pointer"
+              title={t('scanQr', 'Scan QR Code')}
             >
               <QrCode className="w-4 h-4 text-emerald-600" />
-              <span className="hidden sm:inline">Scan QR</span>
+              <span className="hidden sm:inline">{t('scanQr', 'Scan QR')}</span>
             </button>
           )}
 
+          {/* Language Switcher Dropdown */}
+          <div className="relative">
+            <button
+              id="header-language-btn"
+              onClick={() => {
+                setShowLangDropdown(!showLangDropdown);
+                setShowRoleDropdown(false);
+              }}
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition-colors cursor-pointer"
+              title="Change Language"
+            >
+              <Globe2 className="w-4 h-4 text-emerald-600" />
+              <span className="hidden sm:inline">{currentLangObj.nativeName}</span>
+              <span className="sm:hidden uppercase">{language}</span>
+              <ChevronDown className="w-3.5 h-3.5 opacity-60" />
+            </button>
+
+            {showLangDropdown && (
+              <div
+                id="header-language-dropdown"
+                className="absolute right-0 mt-2 w-56 max-h-80 overflow-y-auto bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in space-y-0.5"
+              >
+                <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
+                  {t('chooseYourLanguage', 'Select Language')}
+                </p>
+                {SUPPORTED_LANGUAGES.map((l) => {
+                  const isSelected = language === l.code;
+                  return (
+                    <button
+                      key={l.code}
+                      onClick={() => handleSelectLanguage(l.code)}
+                      className={`w-full text-left px-3 py-2 rounded-xl text-xs font-medium flex items-center justify-between transition-colors cursor-pointer ${
+                        isSelected
+                          ? 'bg-emerald-50 text-emerald-900 font-bold'
+                          : 'text-slate-700 hover:bg-slate-50'
+                      }`}
+                    >
+                      <div>
+                        <div className="font-bold">{l.nativeName}</div>
+                        <div className="text-[10px] text-slate-500">{l.name}</div>
+                      </div>
+                      {isSelected && <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
           {/* Notifications */}
           <button
+            id="header-notifications-btn"
             onClick={onOpenNotifications}
-            className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors relative"
-            title="Notifications"
+            className="p-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors relative cursor-pointer"
+            title={t('notifications', 'Notifications')}
           >
             <Bell className="w-4 h-4" />
             {unreadNotificationsCount > 0 && (
@@ -96,27 +158,44 @@ export const Header: React.FC<HeaderProps> = ({
             )}
           </button>
 
-          {/* Role Pill & Dropdown */}
+          {/* Role Pill & Terminal Switcher */}
           <div className="relative">
             <button
-              onClick={() => setShowRoleDropdown(!showRoleDropdown)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all ${roleInfo.bg}`}
+              id="header-role-badge-btn"
+              onClick={() => {
+                setShowRoleDropdown(!showRoleDropdown);
+                setShowLangDropdown(false);
+              }}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition-all cursor-pointer ${roleInfo.bg}`}
             >
               <span>{roleInfo.label}</span>
               <ChevronDown className="w-3.5 h-3.5 opacity-60" />
             </button>
 
             {showRoleDropdown && (
-              <div className="absolute right-0 mt-2 w-48 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in space-y-1">
+              <div
+                id="header-role-dropdown"
+                className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 p-2 z-50 animate-in fade-in space-y-1"
+              >
+                <div className="px-2.5 py-2 border-b border-slate-100 mb-1">
+                  <p className="text-xs font-bold text-slate-800 truncate">{currentUser?.name || 'Operator'}</p>
+                  {currentUser?.username && (
+                    <p className="text-[11px] text-emerald-600 font-mono font-bold">@{currentUser.username}</p>
+                  )}
+                  {currentUser?.email && (
+                    <p className="text-[10px] text-slate-400 truncate">{currentUser.email}</p>
+                  )}
+                </div>
+
                 <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-1">
-                  Switch Workspace
+                  {t('switchRoleTerminal', 'Terminal Role')}
                 </p>
                 <button
                   onClick={() => {
                     switchDemoRole('HOSPITAL');
                     setShowRoleDropdown(false);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer ${
                     currentUser?.role === 'HOSPITAL' ? 'bg-emerald-50 text-emerald-800' : 'hover:bg-slate-50'
                   }`}
                 >
@@ -128,7 +207,7 @@ export const Header: React.FC<HeaderProps> = ({
                     switchDemoRole('DRIVER');
                     setShowRoleDropdown(false);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer ${
                     currentUser?.role === 'DRIVER' ? 'bg-cyan-50 text-cyan-800' : 'hover:bg-slate-50'
                   }`}
                 >
@@ -140,7 +219,7 @@ export const Header: React.FC<HeaderProps> = ({
                     switchDemoRole('PLANT');
                     setShowRoleDropdown(false);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer ${
                     currentUser?.role === 'PLANT' ? 'bg-amber-50 text-amber-800' : 'hover:bg-slate-50'
                   }`}
                 >
@@ -152,7 +231,7 @@ export const Header: React.FC<HeaderProps> = ({
                     switchDemoRole('ADMIN');
                     setShowRoleDropdown(false);
                   }}
-                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 ${
+                  className={`w-full text-left px-3 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer ${
                     currentUser?.role === 'ADMIN' ? 'bg-purple-50 text-purple-800' : 'hover:bg-slate-50'
                   }`}
                 >
@@ -167,10 +246,21 @@ export const Header: React.FC<HeaderProps> = ({
                     handleResetData();
                     setShowRoleDropdown(false);
                   }}
-                  className="w-full text-left px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2"
+                  className="w-full text-left px-3 py-1.5 rounded-xl text-[11px] font-medium text-slate-600 hover:bg-slate-50 flex items-center gap-2 cursor-pointer"
                 >
                   <RotateCcw className="w-3 h-3 text-slate-400" />
-                  <span>{resetConfirm ? 'Data Reset!' : 'Reset Demo Data'}</span>
+                  <span>{resetConfirm ? 'Data Reset!' : t('resetDemoData', 'Reset Demo Data')}</span>
+                </button>
+
+                <button
+                  onClick={() => {
+                    setShowRoleDropdown(false);
+                    logout();
+                  }}
+                  className="w-full text-left px-3 py-1.5 rounded-xl text-[11px] font-medium text-rose-600 hover:bg-rose-50 flex items-center gap-2 cursor-pointer"
+                >
+                  <LogOut className="w-3 h-3 text-rose-500" />
+                  <span>{t('logout', 'Logout')}</span>
                 </button>
               </div>
             )}
@@ -179,9 +269,10 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Profile Trigger */}
           {onOpenProfile && (
             <button
+              id="header-profile-btn"
               onClick={onOpenProfile}
-              className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors"
-              title="Profile & Settings"
+              className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-colors cursor-pointer"
+              title={t('profile', 'Profile & Settings')}
             >
               <User className="w-4 h-4" />
             </button>

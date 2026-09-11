@@ -6,9 +6,48 @@
 export type UserRole = 'HOSPITAL' | 'DRIVER' | 'PLANT' | 'ADMIN';
 export type UserStatus = 'PENDING' | 'ACTIVE' | 'SUSPENDED' | 'DISABLED';
 
+export type LanguageCode =
+  | 'en'
+  | 'hi'
+  | 'te'
+  | 'ta'
+  | 'kn'
+  | 'ml'
+  | 'mr'
+  | 'bn'
+  | 'gu'
+  | 'pa'
+  | 'or'
+  | 'as'
+  | 'ur';
+
+export interface LanguageOption {
+  code: LanguageCode;
+  nativeName: string;
+  englishName: string;
+  name: string;
+}
+
+export const SUPPORTED_LANGUAGES: LanguageOption[] = [
+  { code: 'en', nativeName: 'English', englishName: 'English', name: 'English' },
+  { code: 'hi', nativeName: 'हिन्दी', englishName: 'Hindi', name: 'Hindi' },
+  { code: 'te', nativeName: 'తెలుగు', englishName: 'Telugu', name: 'Telugu' },
+  { code: 'ta', nativeName: 'தமிழ்', englishName: 'Tamil', name: 'Tamil' },
+  { code: 'kn', nativeName: 'ಕನ್ನಡ', englishName: 'Kannada', name: 'Kannada' },
+  { code: 'ml', nativeName: 'മലയാളം', englishName: 'Malayalam', name: 'Malayalam' },
+  { code: 'mr', nativeName: 'मराठी', englishName: 'Marathi', name: 'Marathi' },
+  { code: 'bn', nativeName: 'বাংলা', englishName: 'Bengali', name: 'Bengali' },
+  { code: 'gu', nativeName: 'ગુજરાતી', englishName: 'Gujarati', name: 'Gujarati' },
+  { code: 'pa', nativeName: 'ਪੰਜਾਬੀ', englishName: 'Punjabi', name: 'Punjabi' },
+  { code: 'or', nativeName: 'ଓଡ଼ିଆ', englishName: 'Odia', name: 'Odia' },
+  { code: 'as', nativeName: 'অসমীয়া', englishName: 'Assamese', name: 'Assamese' },
+  { code: 'ur', nativeName: 'اردو', englishName: 'Urdu', name: 'Urdu' },
+];
+
 export interface UserProfile {
   uid: string;
   name: string;
+  username?: string;
   email: string;
   phone?: string;
   role: UserRole;
@@ -17,6 +56,7 @@ export interface UserProfile {
   organizationType?: 'HOSPITAL' | 'LOGISTICS' | 'TREATMENT_PLANT' | 'GOVERNMENT';
   status: UserStatus;
   photoUrl?: string;
+  language?: LanguageCode;
   createdAt: string;
   updatedAt: string;
   lastLoginAt: string;
@@ -80,7 +120,7 @@ export type PickupStatus =
   | 'REJECTED'
   | 'EXCEPTION';
 
-export type PickupPriority = 'NORMAL' | 'HIGH' | 'EMERGENCY';
+export type PickupPriority = 'NORMAL' | 'HIGH' | 'EMERGENCY' | 'CRITICAL';
 
 export interface DriverAssignment {
   driverId: string;
