@@ -1,0 +1,10 @@
+{
+  "name": "Remix MEDICYCLE",
+  "description": "Smart Biomedical Waste Segregation \u0026 Tracking System from hospital to treatment plant with QR chain of custody, AI segregation assistant, and smart driver dispatch.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

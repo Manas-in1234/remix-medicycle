@@ -1,0 +1,206 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile across hospital, driver, plant operator, and central admin roles",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 120 },
+        "phone": { "type": "string", "maxLength": 20 },
+        "role": { "type": "string", "enum": ["HOSPITAL", "DRIVER", "PLANT", "ADMIN"] },
+        "organizationId": { "type": "string", "maxLength": 100 },
+        "organizationType": { "type": "string", "maxLength": 50 },
+        "status": { "type": "string", "enum": ["PENDING", "ACTIVE", "SUSPENDED", "DISABLED"] },
+        "photoUrl": { "type": "string", "maxLength": 500 },
+        "createdAt": { "type": "string" },
+        "updatedAt": { "type": "string" },
+        "lastLoginAt": { "type": "string" }
+      },
+      "required": ["uid", "name", "email", "role", "status"]
+    },
+    "Hospital": {
+      "title": "Hospital",
+      "description": "Healthcare facility generating biomedical waste",
+      "type": "object",
+      "properties": {
+        "hospitalId": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 128 },
+        "code": { "type": "string", "maxLength": 32 },
+        "address": { "type": "string", "maxLength": 256 },
+        "city": { "type": "string", "maxLength": 64 },
+        "latitude": { "type": "number" },
+        "longitude": { "type": "number" },
+        "contactPerson": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 32 },
+        "email": { "type": "string", "maxLength": 120 },
+        "isRealHospital": { "type": "boolean" },
+        "dataSource": { "type": "string", "maxLength": 100 },
+        "dataType": { "type": "string", "enum": ["REFERENCE_HOSPITAL_DATA"] },
+        "verificationRequired": { "type": "boolean" },
+        "active": { "type": "boolean" }
+      },
+      "required": ["hospitalId", "name", "city", "latitude", "longitude"]
+    },
+    "Driver": {
+      "title": "Driver",
+      "description": "Authorized driver for biomedical waste transit vehicles",
+      "type": "object",
+      "properties": {
+        "driverId": { "type": "string", "maxLength": 64 },
+        "name": { "type": "string", "maxLength": 100 },
+        "phone": { "type": "string", "maxLength": 32 },
+        "email": { "type": "string", "maxLength": 120 },
+        "vehicleId": { "type": "string", "maxLength": 64 },
+        "status": { "type": "string", "enum": ["ACTIVE", "BUSY", "OFFLINE", "SUSPENDED"] },
+        "currentLatitude": { "type": "number" },
+        "currentLongitude": { "type": "number" },
+        "lastGpsUpdate": { "type": "string" },
+        "licenseNumber": { "type": "string", "maxLength": 64 },
+        "rating": { "type": "number" },
+        "totalPickups": { "type": "number" },
+        "dataType": { "type": "string", "enum": ["SYNTHETIC_DEMO_DRIVER_DATA"] }
+      },
+      "required": ["driverId", "name", "phone", "status"]
+    },
+    "Vehicle": {
+      "title": "Vehicle",
+      "description": "Dedicated bio-hazard transport vehicle",
+      "type": "object",
+      "properties": {
+        "vehicleId": { "type": "string", "maxLength": 64 },
+        "vehicleNumber": { "type": "string", "maxLength": 32 },
+        "vehicleType": { "type": "string", "maxLength": 64 },
+        "capacityKg": { "type": "number" },
+        "currentLoadKg": { "type": "number" },
+        "status": { "type": "string", "enum": ["AVAILABLE", "IN_TRANSIT", "MAINTENANCE", "OFF_DUTY"] },
+        "driverId": { "type": "string", "maxLength": 64 },
+        "insuranceStatus": { "type": "string", "maxLength": 32 },
+        "permitStatus": { "type": "string", "maxLength": 32 },
+        "fitnessStatus": { "type": "string", "maxLength": 32 },
+        "dataType": { "type": "string", "enum": ["SYNTHETIC_DEMO_VEHICLE_DATA"] }
+      },
+      "required": ["vehicleId", "vehicleNumber", "capacityKg", "status"]
+    },
+    "PickupRequest": {
+      "title": "PickupRequest",
+      "description": "Consignment pickup workflow tracking entity",
+      "type": "object",
+      "properties": {
+        "requestId": { "type": "string", "maxLength": 64 },
+        "consignmentId": { "type": "string", "maxLength": 64 },
+        "hospitalId": { "type": "string", "maxLength": 64 },
+        "hospitalName": { "type": "string", "maxLength": 128 },
+        "totalWeightKg": { "type": "number" },
+        "status": {
+          "type": "string",
+          "enum": [
+            "DRAFT",
+            "REQUESTED",
+            "AI_REVIEW",
+            "READY_FOR_ASSIGNMENT",
+            "DRIVER_ASSIGNED",
+            "DRIVER_ACCEPTED",
+            "PICKUP_IN_PROGRESS",
+            "PICKED_UP",
+            "IN_TRANSIT",
+            "PLANT_ARRIVED",
+            "PLANT_RECEIVED",
+            "UNDER_TREATMENT",
+            "TREATED",
+            "DISPOSED",
+            "CLOSED",
+            "CANCELLED",
+            "REJECTED",
+            "EXCEPTION"
+          ]
+        },
+        "driverId": { "type": "string", "maxLength": 64 },
+        "plantId": { "type": "string", "maxLength": 64 }
+      },
+      "required": ["requestId", "consignmentId", "hospitalId", "status"]
+    },
+    "QrEvent": {
+      "title": "QrEvent",
+      "description": "Immutable audit log for QR chain-of-custody",
+      "type": "object",
+      "properties": {
+        "eventId": { "type": "string", "maxLength": 64 },
+        "consignmentId": { "type": "string", "maxLength": 64 },
+        "action": { "type": "string", "maxLength": 64 },
+        "statusBefore": { "type": "string", "maxLength": 64 },
+        "statusAfter": { "type": "string", "maxLength": 64 },
+        "userId": { "type": "string", "maxLength": 128 },
+        "role": { "type": "string", "maxLength": 32 },
+        "timestamp": { "type": "string" }
+      },
+      "required": ["eventId", "consignmentId", "action", "statusAfter", "timestamp"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "Operational alerts and role notifications",
+      "type": "object",
+      "properties": {
+        "notificationId": { "type": "string", "maxLength": 64 },
+        "recipientRole": { "type": "string", "maxLength": 32 },
+        "recipientUserId": { "type": "string", "maxLength": 128 },
+        "title": { "type": "string", "maxLength": 128 },
+        "message": { "type": "string", "maxLength": 256 },
+        "type": { "type": "string", "maxLength": 32 },
+        "read": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["notificationId", "title", "message", "read", "createdAt"]
+    },
+    "Anomaly": {
+      "title": "Anomaly",
+      "description": "Discrepancies, deviations, or integrity violations",
+      "type": "object",
+      "properties": {
+        "anomalyId": { "type": "string", "maxLength": 64 },
+        "type": { "type": "string", "maxLength": 64 },
+        "severity": { "type": "string", "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"] },
+        "requestId": { "type": "string", "maxLength": 64 },
+        "description": { "type": "string", "maxLength": 256 },
+        "status": { "type": "string", "enum": ["OPEN", "INVESTIGATING", "RESOLVED", "DISMISSED"] },
+        "detectedAt": { "type": "string" }
+      },
+      "required": ["anomalyId", "type", "severity", "description", "status", "detectedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": {
+      "schema": "User",
+      "description": "System users by authentication uid"
+    },
+    "/hospitals/{hospitalId}": {
+      "schema": "Hospital",
+      "description": "Hospital master registry and geographic coordinates"
+    },
+    "/drivers/{driverId}": {
+      "schema": "Driver",
+      "description": "Authorized drivers and real-time/simulated status"
+    },
+    "/vehicles/{vehicleId}": {
+      "schema": "Vehicle",
+      "description": "Biomedical waste transport vehicles"
+    },
+    "/pickupRequests/{requestId}": {
+      "schema": "PickupRequest",
+      "description": "Consignment pickup workflow requests"
+    },
+    "/qrEvents/{eventId}": {
+      "schema": "QrEvent",
+      "description": "Immutable chain-of-custody audit logs"
+    },
+    "/notifications/{notificationId}": {
+      "schema": "Notification",
+      "description": "Role-targeted alert notifications"
+    },
+    "/anomalies/{anomalyId}": {
+      "schema": "Anomaly",
+      "description": "Detected system anomalies and weight discrepancies"
+    }
+  }
+}
